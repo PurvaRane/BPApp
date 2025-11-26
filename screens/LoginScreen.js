@@ -17,38 +17,42 @@ function LoginScreen({ navigation }) {
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
 
-  const handleLogin = () => {
-    
-    setError("");
+  const handleLogin = async () => {
+  setError("");
 
+  if (!userId.trim() || !password.trim()) {
+    setError("Please enter User ID and Password");
+    return;
+  }
 
-    if (!userId.trim()) {
-      setError("Please enter User ID");
+  try {
+    const res = await fetch("http://127.0.0.1:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.msg);
       return;
     }
 
-    if (!password.trim()) {
-      setError("Please enter Password");
-      return;
-    }
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Home" }],
+    });
 
-    if (userId === "admin" && password === "admin123") {
-      console.log("Login successful");
-      // Navigate to Home page
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Home" }],
-      });
-    } else {
-      setError("Invalid User ID or Password");
-    }
-  };
+  } catch (err) {
+    console.log(err);
+    setError("Something went wrong");
+  }
+};
 
-  const handleRegister = () => {
-    
-    console.log("Register pressed");
-
-  };
+ const handleRegister = () => {
+  navigation.navigate("Register");
+};
 
   return (
     <ImageBackground 
